@@ -4,9 +4,10 @@
 ### Notes
 ---
 
-https://helm.sh/docs/topics/advanced/
-https://pkg.go.dev/helm.sh/helm/v3@v3.12.2/pkg/action#Configuration
-https://cobra.dev/
+- https://helm.sh/docs/topics/advanced/
+- https://pkg.go.dev/helm.sh/helm/v3@v3.12.2/pkg/action#Configuration
+- https://cobra.dev/
+- https://github.com/helm/helm/blob/main/cmd/helm/list_test.go
 
 
 #### bitnami helm charts 
