@@ -8,6 +8,7 @@
 - https://pkg.go.dev/helm.sh/helm/v3@v3.12.2/pkg/action#Configuration
 - https://cobra.dev/
 - https://github.com/helm/helm/blob/main/cmd/helm/list_test.go
+- https://dev.to/kcdchennai/how-to-create-your-first-helm-plugin-4i0g
 
 
 #### bitnami helm charts 
