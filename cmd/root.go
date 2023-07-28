@@ -1,20 +1,13 @@
-/*
-Copyright The Helm Authors.
+package cmd
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
-package main
+import (
+	"github.com/spf13/cobra"
+	"helm.sh/helm/v3/cmd/helm/require"
+	"helm.sh/helm/v3/pkg/action"
+	"helm.sh/helm/v3/pkg/cli"
+	"log"
+	"os"
+)
 
 // import (
 // 	"fmt"
@@ -31,15 +24,7 @@ package main
 // // 	"helm.sh/helm/v3/pkg/release"
 // )
 
-import (
-    "log"
-    "os"
-
-    "helm.sh/helm/v3/pkg/action"
-    "helm.sh/helm/v3/pkg/cli"
-)
-
-var listHelp = `
+const listHelp = `
 This command lists all of the releases for a specified namespace (uses current namespace context if namespace not specified).
 
 By default, it lists only releases that are deployed or failed. Flags like
@@ -65,6 +50,95 @@ Setting '--max' to 0 will not return all results. Rather, it will return the
 server's default, which may be much higher than 256. Pairing the '--max'
 flag with the '--offset' flag allows you to page through results.
 `
+
+func New() *cobra.Command {
+
+	cmd := &cobra.Command{
+		Use:   "shortls",
+		Short: "Show manifest differences",
+		Long:  listHelp,
+		//Alias root command to chart subcommand
+		Args: require.NoArgs,
+		// parse the flags and check for actions like suppress-secrets, no-colors
+		//PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		//	//var fc *bool
+		//
+		//	//if cmd.Flags().Changed("color") {
+		//	//	v, _ := cmd.Flags().GetBool("color")
+		//	//	fc = &v
+		//	//} else {
+		//	//	v, err := strconv.ParseBool(os.Getenv("HELM_DIFF_COLOR"))
+		//	//	if err == nil {
+		//	//		fc = &v
+		//	//	}
+		//	//}
+		//
+		//	//if !cmd.Flags().Changed("output") {
+		//	//	v, set := os.LookupEnv("HELM_DIFF_OUTPUT")
+		//	//	if set && strings.TrimSpace(v) != "" {
+		//	//		_ = cmd.Flags().Set("output", v)
+		//	//	}
+		//	//}
+		//
+		//	//nc, _ := cmd.Flags().GetBool("no-color")
+		//	//
+		//	//if nc || (fc != nil && !*fc) {
+		//	//	ansi.DisableColors(true)
+		//	//} else if !cmd.Flags().Changed("no-color") && fc == nil {
+		//	//	term := term.IsTerminal(int(os.Stdout.Fd()))
+		//	//	// https://github.com/databus23/helm-diff/issues/281
+		//	//	dumb := os.Getenv("TERM") == "dumb"
+		//	//	ansi.DisableColors(!term || dumb)
+		//	//}
+		//
+		//	list()
+		//},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			list()
+			return nil
+		},
+	}
+
+	// add no-color as global flag
+	cmd.PersistentFlags().Bool("no-color", false, "remove colors from the output. If both --no-color and --color are unspecified, coloring enabled only when the stdout is a term and TERM is not \"dumb\"")
+	cmd.PersistentFlags().Bool("color", false, "color output. You can control the value for this flag via HELM_DIFF_COLOR=[true|false]. If both --no-color and --color are unspecified, coloring enabled only when the stdout is a term and TERM is not \"dumb\"")
+	// add flagset from chartCommand
+	//cmd.Flags().AddFlagSet(chartCommand.Flags())
+	//cmd.AddCommand(newVersionCmd(), chartCommand)
+	// add subcommands
+	//cmd.AddCommand(
+	//	revisionCmd(),
+	//	rollbackCmd(),
+	//	releaseCmd(),
+	//)
+	cmd.SetHelpCommand(&cobra.Command{}) // Disable the help command
+	return cmd
+}
+
+func list() {
+	settings := cli.New()
+
+	actionConfig := new(action.Configuration)
+	// You can pass an empty string instead of settings.Namespace() to list
+	// all namespaces
+	if err := actionConfig.Init(settings.RESTClientGetter(), settings.Namespace(), os.Getenv("HELM_DRIVER"), log.Printf); err != nil {
+		log.Printf("%+v", err)
+		os.Exit(1)
+	}
+
+	client := action.NewList(actionConfig)
+	// Only list deployed
+	client.Deployed = true
+	results, err := client.Run()
+	if err != nil {
+		log.Printf("%+v", err)
+		os.Exit(1)
+	}
+
+	for _, rel := range results {
+		log.Printf("%+v", rel)
+	}
+}
 
 // func newListCmd(cfg *action.Configuration, out io.Writer) *cobra.Command {
 // 	client := action.NewList(cfg)
@@ -257,30 +331,3 @@ flag with the '--offset' flag allows you to page through results.
 
 // 	return choices, cobra.ShellCompDirectiveNoFileComp
 // }
-
-
-
-func main() {
-    settings := cli.New()
-
-    actionConfig := new(action.Configuration)
-    // You can pass an empty string instead of settings.Namespace() to list
-    // all namespaces
-    if err := actionConfig.Init(settings.RESTClientGetter(), settings.Namespace(), os.Getenv("HELM_DRIVER"), log.Printf); err != nil {
-        log.Printf("%+v", err)
-        os.Exit(1)
-    }
-
-    client := action.NewList(actionConfig)
-    // Only list deployed
-    client.Deployed = true
-    results, err := client.Run()
-    if err != nil {
-        log.Printf("%+v", err)
-        os.Exit(1)
-    }
-
-    for _, rel := range results {
-        log.Printf("%+v", rel)
-    }
-}
