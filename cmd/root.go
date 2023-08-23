@@ -1,12 +1,19 @@
 package cmd
 
 import (
+	"bytes"
+	"fmt"
+	"github.com/gosuri/uitable"
 	"github.com/spf13/cobra"
 	"helm.sh/helm/v3/cmd/helm/require"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/cli"
+	"helm.sh/helm/v3/pkg/cli/output"
+	"helm.sh/helm/v3/pkg/release"
+	"io"
 	"log"
 	"os"
+	"time"
 )
 
 // import (
@@ -94,7 +101,10 @@ func New() *cobra.Command {
 		//	list()
 		//},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			list()
+			out := new(bytes.Buffer)
+			list(out)
+			fmt.Print(out.String())
+			//fmt.Print(listOut)
 			return nil
 		},
 	}
@@ -115,8 +125,11 @@ func New() *cobra.Command {
 	return cmd
 }
 
-func list() {
+func list(out io.Writer) error {
 	settings := cli.New()
+
+	//var outfmt output.Format
+	outfmt := output.Table // todo improve to support all outputs
 
 	actionConfig := new(action.Configuration)
 	// You can pass an empty string instead of settings.Namespace() to list
@@ -127,17 +140,23 @@ func list() {
 	}
 
 	client := action.NewList(actionConfig)
+	//client.TimeFormat =
 	// Only list deployed
 	client.Deployed = true
 	results, err := client.Run()
 	if err != nil {
 		log.Printf("%+v", err)
 		os.Exit(1)
+		return err
 	}
 
-	for _, rel := range results {
-		log.Printf("%+v", rel)
-	}
+	//for _, rel := range results {
+	//	//log.Printf("%+v", rel)
+	//}
+
+	return outfmt.Write(out, newReleaseListWriter(results, client.TimeFormat, client.NoHeaders))
+
+	//return newReleaseListWriter(results, client.TimeFormat, client.NoHeaders)
 }
 
 // func newListCmd(cfg *action.Configuration, out io.Writer) *cobra.Command {
@@ -214,67 +233,58 @@ func list() {
 // 	return cmd
 // }
 
-// type releaseElement struct {
-// 	Name       string `json:"name"`
-// 	Namespace  string `json:"namespace"`
-// 	Revision   string `json:"revision"`
-// 	Updated    string `json:"updated"`
-// 	Status     string `json:"status"`
-// 	Chart      string `json:"chart"`
-// 	AppVersion string `json:"app_version"`
-// }
+type releaseElement struct {
+	Name      string `json:"name"`
+	Namespace string `json:"namespace"`
+	Updated   string `json:"updated"`
+	Status    string `json:"status"`
+}
 
-// type releaseListWriter struct {
-// 	releases  []releaseElement
-// 	noHeaders bool
-// }
+type releaseListWriter struct {
+	releases  []releaseElement
+	noHeaders bool
+}
 
-// func newReleaseListWriter(releases []*release.Release, timeFormat string, noHeaders bool) *releaseListWriter {
-// 	// Initialize the array so no results returns an empty array instead of null
-// 	elements := make([]releaseElement, 0, len(releases))
-// 	for _, r := range releases {
-// 		element := releaseElement{
-// 			Name:       r.Name,
-// 			Namespace:  r.Namespace,
-// 			Revision:   strconv.Itoa(r.Version),
-// 			Status:     r.Info.Status.String(),
-// 			Chart:      formatChartname(r.Chart),
-// 			AppVersion: formatAppVersion(r.Chart),
-// 		}
+func newReleaseListWriter(releases []*release.Release, timeFormat string, noHeaders bool) *releaseListWriter {
+	// Initialize the array so no results returns an empty array instead of null
+	elements := make([]releaseElement, 0, len(releases))
+	for _, r := range releases {
+		element := releaseElement{
+			Name:      r.Name,
+			Namespace: r.Namespace,
+			Status:    r.Info.Status.String(),
+		}
 
-// 		t := "-"
-// 		if tspb := r.Info.LastDeployed; !tspb.IsZero() {
-// 			if timeFormat != "" {
-// 				t = tspb.Format(timeFormat)
-// 			} else {
-// 				t = tspb.String()
-// 			}
-// 		}
-// 		element.Updated = t
+		t := "-"
+		if tspb := r.Info.LastDeployed; !tspb.IsZero() {
+			t = tspb.Format(time.RFC822Z)
+			//t = tspb.Format(time.RFC3339)
+		}
+		element.Updated = t
 
-// 		elements = append(elements, element)
-// 	}
-// 	return &releaseListWriter{elements, noHeaders}
-// }
+		elements = append(elements, element)
+	}
+	return &releaseListWriter{elements, noHeaders}
+}
 
-// func (r *releaseListWriter) WriteTable(out io.Writer) error {
-// 	table := uitable.New()
-// 	if !r.noHeaders {
-// 		table.AddRow("NAME", "NAMESPACE", "REVISION", "UPDATED", "STATUS", "CHART", "APP VERSION")
-// 	}
-// 	for _, r := range r.releases {
-// 		table.AddRow(r.Name, r.Namespace, r.Revision, r.Updated, r.Status, r.Chart, r.AppVersion)
-// 	}
-// 	return output.EncodeTable(out, table)
-// }
+func (r *releaseListWriter) WriteTable(out io.Writer) error {
+	table := uitable.New()
+	if !r.noHeaders {
+		table.AddRow("NAME", "NAMESPACE", "UPDATED", "STATUS")
+	}
+	for _, r := range r.releases {
+		table.AddRow(r.Name, r.Namespace, r.Updated, r.Status)
+	}
+	return output.EncodeTable(out, table)
+}
 
-// func (r *releaseListWriter) WriteJSON(out io.Writer) error {
-// 	return output.EncodeJSON(out, r.releases)
-// }
+func (r *releaseListWriter) WriteJSON(out io.Writer) error {
+	return output.EncodeJSON(out, r.releases)
+}
 
-// func (r *releaseListWriter) WriteYAML(out io.Writer) error {
-// 	return output.EncodeYAML(out, r.releases)
-// }
+func (r *releaseListWriter) WriteYAML(out io.Writer) error {
+	return output.EncodeYAML(out, r.releases)
+}
 
 // // Returns all releases from 'releases', except those with names matching 'ignoredReleases'
 // func filterReleases(releases []*release.Release, ignoredReleaseNames []string) []*release.Release {
