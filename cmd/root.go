@@ -110,8 +110,8 @@ func New() *cobra.Command {
 	}
 
 	// add no-color as global flag
-	cmd.PersistentFlags().Bool("no-color", false, "remove colors from the output. If both --no-color and --color are unspecified, coloring enabled only when the stdout is a term and TERM is not \"dumb\"")
-	cmd.PersistentFlags().Bool("color", false, "color output. You can control the value for this flag via HELM_DIFF_COLOR=[true|false]. If both --no-color and --color are unspecified, coloring enabled only when the stdout is a term and TERM is not \"dumb\"")
+	//cmd.PersistentFlags().Bool("no-color", false, "remove colors from the output. If both --no-color and --color are unspecified, coloring enabled only when the stdout is a term and TERM is not \"dumb\"")
+	//cmd.PersistentFlags().Bool("color", false, "color output. You can control the value for this flag via HELM_DIFF_COLOR=[true|false]. If both --no-color and --color are unspecified, coloring enabled only when the stdout is a term and TERM is not \"dumb\"")
 	// add flagset from chartCommand
 	//cmd.Flags().AddFlagSet(chartCommand.Flags())
 	//cmd.AddCommand(newVersionCmd(), chartCommand)
@@ -127,9 +127,7 @@ func New() *cobra.Command {
 
 func list(out io.Writer) error {
 	settings := cli.New()
-
-	//var outfmt output.Format
-	outfmt := output.Table // todo improve to support all outputs
+	outfmt := output.Table
 
 	actionConfig := new(action.Configuration)
 	// You can pass an empty string instead of settings.Namespace() to list
