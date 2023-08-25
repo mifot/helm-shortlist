@@ -17,7 +17,9 @@ import (
 )
 
 const shortlistHelp = `
-This command lists all of the releases for a specified namespace (uses current namespace context if namespace not specified).
+This command shortls lists all of the releases for a specified namespace (uses current namespace context if namespace not specified).
+But compare to original helm list command, it prints out only limited information about releases like:
+name, namespace, updated time and status. 
 
 By default, it lists only releases that are deployed or failed. Flags like
 '--uninstalled' and '--all' will alter this behavior. Such flags can be combined:
@@ -30,12 +32,11 @@ If the --filter flag is provided, it will be treated as a filter. Filters are
 regular expressions (Perl compatible) that are applied to the list of releases.
 Only items that match the filter will be returned.
 
-    $ helm list --filter 'ara[a-z]+'
-    NAME                UPDATED                                  CHART
-    maudlin-arachnid    2020-06-18 14:17:46.125134977 +0000 UTC  alpine-0.1.0
+    $ helm shortls --filter 'te[a-z]+'
+    NAME            NAMESPACE       UPDATED                 STATUS  
+    another-test    tests           23 Aug 23 16:18 +0200   deployed
 
-If no results are found, 'helm list' will exit 0, but with no output (or in
-the case of no '-q' flag, only headers).
+If no results are found, 'helm shortls' will exit 0, but with no output.
 
 By default, up to 256 items may be returned. To limit this, use the '--max' flag.
 Setting '--max' to 0 will not return all results. Rather, it will return the
@@ -106,6 +107,11 @@ func New() *cobra.Command {
 	cmd.PersistentFlags().StringVarP(&client.Filter, "filter", "f", "", "a regular expression (Perl compatible). Any releases that match the expression will be included in the results")
 	cmd.PersistentFlags().StringVarP(&client.Selector, "selector", "l", "", "Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Works only for secret(default) and configmap storage backends.")
 	cmd.PersistentFlags().StringVarP(&requestedNamespace, "namespace", "n", settings.Namespace(), "namespace scope for this request")
+
+	cmd.SetFlagErrorFunc(func(command *cobra.Command, err error) error {
+		fmt.Printf("%v\n", err)
+		return nil
+	})
 
 	cmd.SetHelpCommand(&cobra.Command{})
 	return cmd
