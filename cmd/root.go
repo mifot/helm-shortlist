@@ -47,26 +47,27 @@ func New() *cobra.Command {
 
 	actionConfig := new(action.Configuration)
 	client := action.NewList(actionConfig)
+	settings := cli.New()
+	requestedNamespace := settings.Namespace()
 
 	cmd := &cobra.Command{
-		Use:   "shortls",
-		Short: "Show manifest differences",
-		Long:  shortlistHelp,
-		Args:  require.NoArgs,
+		Use:     "shortls",
+		Aliases: []string{"sls"},
+		Short:   "Show manifest differences",
+		Long:    shortlistHelp,
+		Args:    require.NoArgs,
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			out := new(bytes.Buffer)
-
-			settings := cli.New()
 			outfmt := output.Table
-
-			if err := actionConfig.Init(settings.RESTClientGetter(), settings.Namespace(), os.Getenv("HELM_DRIVER"), log.Printf); err != nil {
-				return err
-			}
 
 			if client.AllNamespaces {
 				if err := actionConfig.Init(settings.RESTClientGetter(), "", os.Getenv("HELM_DRIVER"), log.Printf); err != nil {
+					return err
+				}
+			} else {
+				if err := actionConfig.Init(settings.RESTClientGetter(), requestedNamespace, os.Getenv("HELM_DRIVER"), log.Printf); err != nil {
 					return err
 				}
 			}
@@ -104,6 +105,7 @@ func New() *cobra.Command {
 	cmd.PersistentFlags().IntVar(&client.Offset, "offset", 0, "next release index in the list, used to offset from start value")
 	cmd.PersistentFlags().StringVarP(&client.Filter, "filter", "f", "", "a regular expression (Perl compatible). Any releases that match the expression will be included in the results")
 	cmd.PersistentFlags().StringVarP(&client.Selector, "selector", "l", "", "Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Works only for secret(default) and configmap storage backends.")
+	cmd.PersistentFlags().StringVarP(&requestedNamespace, "namespace", "n", settings.Namespace(), "namespace scope for this request")
 
 	cmd.SetHelpCommand(&cobra.Command{})
 	return cmd
