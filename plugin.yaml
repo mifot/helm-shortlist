@@ -1,0 +1,9 @@
+name: "shortls"
+version: "0.1.0"
+usage: "List limited information about releases like name, namespace, updated time and status"
+description: "List limited information about releases like name, namespace, updated time and status"
+ignoreFlags: false
+command: "$HELM_PLUGIN_DIR/shortls/shortls"
+hooks:
+#  install: " mkdir $HELM_PLUGIN_DIR/shortls"
+#  update: "$HELM_PLUGIN_DIR/install-binary.sh -u"
