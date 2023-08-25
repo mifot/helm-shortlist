@@ -16,8 +16,7 @@ import (
 	"time"
 )
 
-const shortlistHelp = `
-This command shortls lists all of the releases for a specified namespace (uses current namespace context if namespace not specified).
+const shortlistHelp = `This command shortls lists all of the releases for a specified namespace (uses current namespace context if namespace not specified).
 But compare to original helm list command, it prints out only limited information about releases like:
 name, namespace, updated time and status. 
 
@@ -52,11 +51,10 @@ func New() *cobra.Command {
 	requestedNamespace := settings.Namespace()
 
 	cmd := &cobra.Command{
-		Use:     "shortls",
-		Aliases: []string{"sls"},
-		Short:   "Show manifest differences",
-		Long:    shortlistHelp,
-		Args:    require.NoArgs,
+		Use:   "shortls",
+		Short: "Show manifest differences",
+		Long:  shortlistHelp,
+		Args:  require.NoArgs,
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 
