@@ -13,7 +13,7 @@ Happy helming!
 
 ## Install
 
-describtion of installation process
+At present, the only installation option available is to build from source code. To do this, simply clone the repository and run the command `helm plugin install .` We are actively working on introducing additional installation options, so stay tuned for updates in the near future.
 
 ### Notes & useful links
 
