@@ -7,7 +7,7 @@ Introducing our custom Helm "shorls "plugin – a game-changer designed to simpl
 
 But that's not all! Our journey didn't stop at simplifying Helm releases. We embarked on this adventure to dive into the world of Go programming and innovation. We're open to your ideas and contributions, so if you have any suggestions or modifications in mind, feel free to join us on this exciting journey.
 
-Experience the difference with our Helm plugin – where efficiency meets elegance. Say goodbye to clutter and hello to clarity.
+Experience the difference with our Helm shortls plugin – where efficiency meets elegance. Say goodbye to clutter and hello to clarity.
 
 Happy helming!
 
