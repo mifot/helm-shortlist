@@ -1,9 +1,9 @@
 name: "shortls"
 version: "0.1.0"
-usage: "List limited information about releases like name, namespace, updated time and status"
-description: "List limited information about releases like name, namespace, updated time and status"
+usage: "List deployed releases on k8s cluster in SHORT and clean format"
+description: "List deployed releases on k8s cluster in SHORT and clean format"
 ignoreFlags: false
-command: "$HELM_PLUGIN_DIR/shortls/shortls"
+command: "$HELM_PLUGIN_DIR/shortls"
 hooks:
 #  install: " mkdir $HELM_PLUGIN_DIR/shortls"
 #  update: "$HELM_PLUGIN_DIR/install-binary.sh -u"
