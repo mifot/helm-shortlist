@@ -5,7 +5,7 @@ Have you ever found yourself in a situation where you're juggling multiple termi
 
 Introducing our custom Helm "shorls "plugin – a game-changer designed to simplify your workflow and give you a sleek, organized output. We understand that clarity and efficiency matter, so we've crafted a solution that presents only the essential information in a clean and concise manner. With our plugin, each release's details are neatly condensed into a single line, even in the tightest of terminal windows.
 
-In addition to streamlining Helm releases, another primary motivation behind creating this custom Helm plugin was personal growth and skill development in the Go programming language. I welcome any ideas, feedback or contributions you may have for potential enhancements or modifications to the plugin. Open an issue and contribute!
+In addition to streamlining Helm releases, another primary motivation behind creating this custom Helm plugin was personal growth and skill development in the Go programming language. Ideas, feedback, or contributions for potential enhancements or modifications to the plugin are welcome.
 
 Experience the difference with our Helm **shortls** plugin – where efficiency meets elegance. Say goodbye to clutter and hello to clarity.
 
