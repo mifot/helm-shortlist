@@ -15,7 +15,8 @@ Happy helming!
 
 ## Install
 
-At present, the only installation option available is to build from source code. To do this, simply clone the repository and run the commands `go build -o shortls .` and next `helm plugin install .` We are actively working on introducing additional installation options, so stay tuned for updates in the near future.
+At present, the only installation option available is to build from source code. To do this, simply clone the repository and run the commands `go build -o shortls .` and next `helm plugin install .`
+We are actively working on introducing additional installation options, so stay tuned for updates in the near future.
 
 ### Notes & useful links
 
