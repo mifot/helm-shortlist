@@ -1,4 +1,6 @@
 # helm shortls plugin
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/helm-shortls)](https://artifacthub.io/packages/search?repo=helm-shortls)
+
 Helm **shortls** is a helm plugin to list deployed releases on k8s cluster in SHORT and clean format.
 
 Have you ever found yourself in a situation where you're juggling multiple terminals in a single window, and you need to list all the deployed Helm releases on your cluster? It can be a real headache, especially when the command output is cluttered with excessive information, making it look downright messy.
